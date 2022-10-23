@@ -4,8 +4,6 @@
 
 The DevOps team in your organization is responsible to deploy the following architecture in K8S. 
 
-![](img/mongo-project.png)
-
 The systems components are:
 
 - A web app (`webapp`) provisioned in k8s as a `Deployment` with `1` replicas using the `nanajanashia/k8s-demo-app:v1.0` Docker image.
