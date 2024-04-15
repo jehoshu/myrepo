@@ -1,4 +1,4 @@
-locals {vi
+locals {
     environment = "prod"
     aws_region = "us-east-1"
     bucket_name = "111-terrafrom-state-12b3456bf" EXAMPLE
