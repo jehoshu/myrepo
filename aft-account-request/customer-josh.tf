@@ -12,12 +12,12 @@ module "customer_josh" {
   }
   account_tags = {
    "CustomerName" = "josh"
-   "AccountType"  = "production"
+   "Environment"  = "production"
    "Owner"        = "CloudOps"
   }
   change_management_parameters = {
-   change_requested_by = "JOSH Y."
-   change_reason       = "Created new production enviroment"
+   change_requested_by = "JOSH Y"
+   change_reason       = "Created new account"
   }
   custom_fields = {
     customer_id                 = "01"
@@ -25,7 +25,6 @@ module "customer_josh" {
     private_domain              = "joshfis.com"
     public_domain               = "josh.com"
     account_name                = "customer-josh-production" #AzureAD Group prefix must be unique
-    account_type                = "production"
     enviroment_name             = "production" # Deprecated
     main_region                 = "us-east-1"
     vpc_internal_id             = "101"
@@ -34,5 +33,5 @@ module "customer_josh" {
     migration                   = "false"
     import_kms_cmk_id           = "" # Optional (can be added after account is created)
   }
-  account_customizations_name = "customer-josh-production"
+  account_customizations_name = "customer-multi-region-josh"
 }
