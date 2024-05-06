@@ -1,0 +1,50 @@
+update by query elastic example:
+PUT testindex22
+{
+  "mappings": {
+    "properties": {
+      "messages": {
+        "type":"object",
+        "properties": {
+          "type": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
+
+POST testindex22/_doc
+{
+  "messages": [
+    {
+      "type": "JOIN"
+    },
+    {
+      "type": "CHAT"
+    }
+  ]
+}
+
+GET testindex22/_search
+
+
+POST testindex22/_update_by_query
+{
+  "script": {
+    "source": """
+    for (int i = 0; i < ctx._source.messages.length; i++) {
+       if (ctx._source["messages"][i]["type"] == "JOIN") {
+        ctx._source["messages"][i]["type"] = "CHAT"
+       }
+    }
+    """,
+    "lang": "painless"
+  },
+  "query": {
+    "match_all": {}
+  }
+}
+
+GET testindex22/_search
