@@ -1,0 +1,111 @@
+## How to delete by query and time range:
+POST index_name/_delete_by_query
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "range": {
+          "dateAdded": {
+            "gte": "2022-11-15 00:00:00.000",
+            "lte": "2022-11-15 23:59:59.000"
+          }
+        }
+      }
+    }
+  }
+}
+
+
+## How to clear cache in the ElasticSearch
+## run query:
+GET _nodes/stats
+
+## Search “fielddata” under Check the "estimated_size_in_bytes" The limit should be under "limit_size"
+
+      "breakers" : {
+        "request" : {
+          "limit_size_in_bytes" : 644245094,
+          "limit_size" : "614.3mb",
+          "estimated_size_in_bytes" : 0,
+          "estimated_size" : "0b",
+          "overhead" : 1.0,
+          "tripped" : 0
+        },
+        "fielddata" : {
+          "limit_size_in_bytes" : 429496729,
+          "limit_size" : "409.5mb",
+          "estimated_size_in_bytes" : 904,
+          "estimated_size" : "904b",
+          "overhead" : 1.03,
+          "tripped" : 7
+        },
+
+## to clear the "estimated_size_in_bytes" run the next query
+POST /_all/_cache/clear?fielddata=true
+
+## How search by a range
+GET index_name/_search
+{  
+  "query": {  
+    "range": {  
+      "dateAdded": {  
+        "gte": "2022-11-01 00:00:00.000", 
+        "lte": "2022-11-01 23:59:59.999"  
+      }  
+    }
+  }
+}
+
+## How to see all the existing indexes  
+GET _cat/indices?v
+
+## How to see daily snapshots
+GET _cat/snapshots/cs-automated-enc?v
+
+#from the reasult you take one of id and put the example command below
+GET _snapshot/cs-automated-enc/PUT THE ID
+
+##How to see repositories for snapshot
+GET _cat/repositories
+
+##How to see all the backup snapshots in the environment  
+GET _cat/snapshots/backup
+
+##How to create a backup 
+insert new snapshot_name  (in the “indices“ section you can insert unique indices)
+
+PUT /_snapshot/backup/snapshot_name?wait_for_completion=true  
+{   
+"indices": "*",  
+"ignore_unavailable": true,  
+"include_global_state": true  
+}
+
+##How to see what the snapshot include 
+GET _snapshot/backup/snapshot_8
+
+## Check the disk space on each node
+## You can see the space you have available on each node by running:
+GET _nodes/stats/fs
+
+## Check the cluster settings
+GET _cluster/settings
+
+## Change the number of replicas for an index
+PUT /my-index-000001/_settings
+{
+  "index" : {
+    "number_of_replicas" : 2
+  }
+}
+
+## Change maximum of shards per node
+## this was performed on a very specific situation which was Sales Green environment where we have only 2 nodes but a lot of indexes which although they are small, they are using 5 shards and 1 replica (so 10 shards) each and we reached the maximum of 1000 shards per node. This is a temporary workaround to enable running batches or ingestion
+
+GET _cluster/settings?flat_settings&include_defaults=true
+PUT _cluster/settings
+{
+   "persistent":{
+      "cluster.max_shards_per_node": 1250
+    }
+}
