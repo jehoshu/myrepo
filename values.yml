@@ -1,0 +1,274 @@
+shield_encrypt_decrypt:
+    encrypt: true
+
+### OPS TASKS
+  ops_tasks:
+    image:
+      tag: v0.1.0.248
+    # chart:
+    #   tag: 0.3.3
+    update_redis_keys:
+      enabled: false
+      schedule: "00 13 01 01 *"
+    clean_databas_tables:
+      enabled: true
+      schedule: "00 01 * * *"
+    yesterday_report:
+      enabled: true
+      schedule: "30 00 * * *"
+    internal_report:
+      enabled: true
+      schedule: "00 07,09,14,21 * * *"
+    monthly_report:
+      enabled: true
+      schedule: "00 05 01 * *"
+    external_report: 
+      enabled: true
+      schedule: "30 00 * * *"
+      smtp_recepients: "IT-CPL-USS-SUPPORT@josh.com, external-report@josh.com"
+    csv_job:
+      enabled: true
+      schedule: "00 05 * * *"
+
+## WORKERS
+  aws_archive:
+    livenessProbe:
+      enabled: false
+    readinessProbe:
+      enabled: false
+    resources: 
+      requests:
+        memory: "4Gi"
+      limits:
+        memory: "4Gi"
+    customizeMemorySettings:
+      enable: true
+      xmx: "3072m"
+      xms: "1048m"
+
+  worker_continuous:
+    replicaCount: 0
+    resources:
+      requests:
+        memory: "3.5Gi"
+        cpu: "1"
+      limits:
+        cpu: "1"
+        memory: "4Gi"
+    keda: 
+      enabled: enabled 
+      queueType: "rabbitmq"
+      pollingInterval: 300
+      cooldownPeriod: 300
+      idleReplicaCount: 0
+      minReplicaCount: 10 
+      maxReplicaCount: 150
+      rabbitmq:
+        queueLength: 200
+        activationValue: '50'
+        queueName: "elastic"
+
+  worker_exec:
+    replicaCount: 1
+    resources:
+      requests:
+        memory: "3Gi"
+      limits:
+        memory: "4Gi"
+
+
+## FRONTEND
+  frontend:
+    resources:
+      limits:
+        memory: "150Mi"
+      requests:
+        memory: "10Mi"
+
+## SEARCH API
+  search_api:
+    resources:
+      limits:
+        memory: "1.5Gi"
+      requests:
+        memory: "0.75Gi" 
+
+## RABBITMQ
+  rabbitmq:
+    replicaCount: 2
+    persistence:
+      size: 150Gi
+    resources:
+      limits:
+        memory: 8Gi
+      requests:
+        memory: 4Gi
+    extraConfiguration: |-
+      consumer_timeout = 43200000
+      disk_free_limit.absolute = 75000000000
+
+## MODES REDIS RESOURCES
+  redis:
+    persistence:
+      size: 70Gi # changed directly in EBS master=70GB replica=70G
+    resources:
+      requests:
+        cpu: "1.5"
+        memory: 12Gi  
+      limits:
+        cpu: "1.5"
+        memory: 12Gi
+    livenessProbe:
+      failureThreshold: 10
+      periodSeconds: 30
+
+## BACKEND REDIS RESOURCES
+  redis_backend:
+    persistence:
+      size: 256Mi
+
+## MONITOR PLUGINS
+  monitor:
+    replicaCount: 1
+    resources:
+      limits:
+        memory: "6Gi"
+      requests:
+        memory: "6Gi"
+    #customizeMemorySettings:
+    #  enable: true
+    #  xmx: "3584m"
+    #  xms: "3584m"
+    plugins:
+      ## import
+      import-gpg: v3.5.139
+      import-s3-download: v3.5.114
+      import-local-files: v3.5.28
+      import-unzip: v3.5.60
+      import-rabbitmq-download: v3.5.13
+      import-sqs-consumer: v3.5.11
+      import-unwrap-journaling: v3.7.43
+      import-sftp: v3.2.2.4
+
+
+## BACKEND
+  backend:
+    livenessProbe:
+      enabled: false
+    readinessProbe:
+      enabled: false 
+    replicaCount: 1
+    resources:
+      limits:
+        memory: "4Gi"
+      requests:
+        memory: "4Gi"
+    customizeMemorySettings:
+      enable: true
+      xmx: "3548m"
+      xms: "1000m"
+    features:
+      translationService: false
+      supervision: false
+      surveillance: true
+
+## ELASTICSEARCH MAPPINGS
+  elasticsearch_mappings:
+    enabled: false
+
+
+## SMTP SERVER
+  smtp_server:
+    mailboxes:
+      wsz4PCnmT7LuY9@smtp-04123.josh.com: email
+    whitelist:
+      domain: ""
+      email: ""
+
+## TASKS
+  tasks:
+    retention_delete:
+      failedJobsHistoryLimit: 3
+      successfulJobsHistoryLimit: 1
+      enabled: true
+      schedule: "05 00 * * *"
+      resources:
+        limits:
+          memory: 8Gi
+        requests:
+          memory: 8Gi
+    hr_data_sync:
+      enabled: true
+      schedule: "15 01 * * *"
+      file_name: "sftp_useraccess/hr/Monitored_{YYYY}{MM}{DD}.csv"
+      delimiter: ";"
+      users_table_name: "users"
+    relationship_map:
+      failedJobsHistoryLimit: 3
+      successfulJobsHistoryLimit: 1 
+      enabled: true
+      schedule: "00 04 * * *"
+      schedule2: "00 10,18 * * *"
+
+## TGM TASKS KEDA
+  tgm_tasks_keda:
+    serviceAccount:
+      create: true
+    jobs:
+    - name: smtp-email
+      tolerations:
+      - key: tgm
+        operator: "Equal"
+        value: 'true'
+        effect: "NoExecute"
+      nodeSelector: 
+        tgm: 'true'
+      failedJobsHistoryLimit: 3
+      successfulJobsHistoryLimit: 1
+      taskGroupId: 1
+      logLevel: 3
+      javaXmx: "10G"
+      resources:
+        limits:
+          memory: "12Gi"
+        requests:
+          memory: "12Gi"
+      serviceAccount:
+        name: tgm-tasks-keda
+      keda:
+        queueType: "rabbitmq"
+        pollingInterval: 300
+        cooldownPeriod: 600
+        idleReplicaCount: 0
+        minReplicaCount: 0
+        maxReplicaCount: 5
+        rabbitmq:
+          queueName: "email_queue"
+          queueLength: 500
+          activationValue: '400'
+
+ 
+## TGM TASKS
+  tgm_tasks:
+    kyverno:
+      enabled: true
+    jobs:
+    - name: zoom-chat
+      failedJobsHistoryLimit: 3
+      successfulJobsHistoryLimit: 1
+      taskGroupId: 11
+      logLevel: 3
+      schedule: "00 19 * * *"
+      javaXmx: "10G"
+      resources:
+        limits:
+          memory: "10Gi"
+        requests:
+          memory: "10Gi"
+      tolerations: 
+        - key: tgm
+          operator: "Equal" 
+          value: 'true' 
+          effect: "NoExecute"
+      nodeSelector: 
+        tgm: 'true'

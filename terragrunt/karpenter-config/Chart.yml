@@ -1,0 +1,4 @@
+apiVersion: v1
+name: karpenter-config
+description: A chart to run karpenter config
+version: 1.0.0

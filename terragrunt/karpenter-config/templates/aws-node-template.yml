@@ -1,0 +1,108 @@
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+spec:
+  tags:
+    launched-by: "karpenter"
+    customer_name: "{{ .Values.customerName }}"
+    environment: "{{ .Values.environment }}"
+  blockDeviceMappings:
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 150Gi
+        volumeType: gp3
+        encrypted: true
+  amiFamily: Bottlerocket
+  subnetSelector:
+    karpenter.sh/discovery/subnet: "private"
+  securityGroupSelector:
+    karpenter.sh/discovery: "josh-prod"
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: workers
+spec:
+  tags:
+    launched-by: "karpenter"
+    workload-type: "workers"
+    customer_name: "{{ .Values.customerName }}"
+    environment: "{{ .Values.environment }}"
+  blockDeviceMappings:
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 50Gi
+        volumeType: gp3
+        encrypted: true
+  amiFamily: Bottlerocket
+  subnetSelector:
+    karpenter.sh/discovery/subnet/all: "private"
+  securityGroupSelector:
+    karpenter.sh/discovery: "josh-prod"
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: workers-tuning
+spec:
+  tags:
+    launched-by: "karpenter"
+    workload-type: "tuning"
+    customer_name: "{{ .Values.customerName }}"
+    environment: "{{ .Values.environment }}"
+  blockDeviceMappings:
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 50Gi
+        volumeType: gp3
+        encrypted: true
+  amiFamily: Bottlerocket
+  subnetSelector:
+    karpenter.sh/discovery/subnet/all: "private"
+  securityGroupSelector:
+    karpenter.sh/discovery: "josh-prod"
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: tuning-prod 
+spec:
+  tags:
+    launched-by: "karpenter"
+    workload-type: "tuning"
+    customer_name: "{{ .Values.customerName }}"
+    environment: "{{ .Values.environment }}"
+  blockDeviceMappings:
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 50Gi
+        volumeType: gp3
+        encrypted: true
+  amiFamily: Bottlerocket
+  subnetSelector:
+    karpenter.sh/discovery/subnet/all: "private"
+  securityGroupSelector:
+    karpenter.sh/discovery: "josh-prod"
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: bloomberg
+spec:
+  tags:
+    launched-by: "karpenter"
+    # workload-type: "tuning"
+    customer_name: "{{ .Values.customerName }}"
+    environment: "{{ .Values.environment }}"
+  blockDeviceMappings:
+    - deviceName: /dev/xvdb
+      ebs:
+        volumeSize: 50Gi
+        volumeType: gp3
+        encrypted: true
+  amiFamily: Bottlerocket
+  subnetSelector:
+    karpenter.sh/discovery/subnet/all: "private"
+  securityGroupSelector:
+    karpenter.sh/discovery: "josh-prod"

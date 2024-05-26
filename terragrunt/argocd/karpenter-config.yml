@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter-config
+  namespace: argocd
+spec:
+  project: infra
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: {{ .Values.awsRegion }}/charts/karpenter-config
+    targetRevision: HEAD
+    helm:
+      releaseName: karpenter-config
+      values: |
+        clusterName: "{{ .Values.customerName }}-{{ .Values.environment }}"
+        customerName: "{{ .Values.customerName }}"
+        environment: "{{ .Values.environment }}"
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: infra
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true

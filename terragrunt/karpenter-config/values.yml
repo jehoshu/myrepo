@@ -1,0 +1,18 @@
+clusterName:
+provisioners:
+  default:
+    enabled: true
+  workers:
+    enabled: true
+  workersTuning:
+    enabled: false
+  tgm:
+    enabled: false
+  tasks:
+    enabled: true
+  export:
+    enabled: false
+  tuning:
+    enabled: false
+  tuningProd:
+    enabled: false
