@@ -1,0 +1,5 @@
+kubectl exec -it (NAME OF POD) -- bin/bash
+
+## to avoid all the time and change the active namespace in kubernetes, we can use kubens
+## to install kubens: brew install kubectx
+## run kubens to list all ns and choose your active ns like: kubens (the NAMESPACE)
