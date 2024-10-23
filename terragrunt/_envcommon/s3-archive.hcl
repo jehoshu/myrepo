@@ -1,5 +1,5 @@
 terraform {
-  source = "tfr://app.terraform.io/shieldfc/s3-archive/aws//?version=${local.tf_versions["aws-s3-archive"]}"
+  source = "tfr://app.terraform.io/josh/s3-archive/aws//?version=${local.tf_versions["aws-s3-archive"]}"
 }
 
 locals {
